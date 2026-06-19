@@ -24,6 +24,14 @@ public class FighterController : MonoBehaviour
     public int attackDamage = 10;
     public float attackRange = 1.5f;
 
+    [Header("Jump")]
+    public float jumpForce = 10f;
+    public Transform groundCheck;
+    public float groundCheckRadius = 0.1f;
+    public LayerMask groundLayer;
+
+    private bool isGrounded = false;
+
     [Header("Audio")]
     public AudioSource audioSource;
     public AudioClip hitSound;
@@ -52,6 +60,9 @@ public class FighterController : MonoBehaviour
 
     void Update()
     {
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+        Debug.Log("isGrounded: " + isGrounded);
+
         if (isDead)
             return;
 
@@ -84,6 +95,7 @@ public class FighterController : MonoBehaviour
             move = -1f;
             transform.localScale = new Vector3(-5, 5, 1);
         }
+
         else if (Input.GetKey(KeyCode.D))
         {
             move = 1f;
@@ -92,6 +104,12 @@ public class FighterController : MonoBehaviour
 
         transform.Translate(Vector2.right * move * moveSpeed * Time.deltaTime);
         animator.SetFloat("Speed", Mathf.Abs(move));
+
+        if (Input.GetKeyDown(KeyCode.W) && isGrounded && !isAttacking)
+        {
+            rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+            animator.SetTrigger("Jump");
+        }
 
         if (Input.GetKeyDown(KeyCode.F) && !isAttacking)
         {
@@ -132,6 +150,13 @@ public class FighterController : MonoBehaviour
 
         transform.Translate(Vector2.right * move * moveSpeed * Time.deltaTime);
         animator.SetFloat("Speed", Mathf.Abs(move));
+
+        if (Input.GetKeyDown(KeyCode.W) && isGrounded && !isAttacking)
+        {
+            rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+            animator.SetTrigger("Jump");
+        }
+
 
         if (Input.GetKeyDown(KeyCode.RightControl) && !isAttacking)
         {
